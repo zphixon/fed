@@ -1,5 +1,6 @@
-! Copyright (C) 2016 Your name.
-! See http://factorcode.org/license.txt for BSD license.
+! Copyright (C) 2016 Zack Hixon
+! see LICENSE.txt for copyright notice
+
 USING: kernel ;
 IN: fed.buffer
 

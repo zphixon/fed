@@ -58,8 +58,28 @@ IN: fed
     utf8 set-file-lines
 ;
 
-! : d ( buffer -- buffer )
-!     
+:: d ( buffer -- buffer )
+    buffer linenum>> :> ln
+    buffer lines>> :> ls
+    buffer totallines>> :> l
+    0 ln 1 - ls subseq :> before
+    ln l ls subseq :> after
+    before after append :> result
+    buffer result >>lines
+    buffer lines>> length :> newlines
+    buffer newlines >>totallines
+;
+
+! bug version?
+! :: d ( buffer -- buffer )
+!     buffer linenum>> :> ln
+!     buffer lines>> :> ls
+!     buffer totallines>> :> l
+!     0 ln 1 - ls subseq :> before
+!     ln l ls subseq :> after
+!     before after append :> result
+!     buffer result >>lines
+!     buffer lines>> length buffer swap >>totallines
 ! ;
 
 : parsecommand ( buffer command -- buffer quit? )

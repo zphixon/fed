@@ -1,10 +1,16 @@
 ! fed.factor: factor ed clone
+! see LICENSE.txt for copyright notice
 
 USING: sequences sequences.generalizations prettyprint
     command-line math kernel io io.encodings.utf8
     io.files accessors math.parser combinators strings
     locals arrays namespaces fed.buffer ;
 IN: fed
+
+: testbuf ( -- buffer )
+    "work/fed/test" dup utf8 file-lines <buffer> [ dup length>> dup ] dip
+    swap >>totallines swap >>linenum swap >>lines swap >>filename
+;
 
 ! splice array into another
 : splice ( index into from -- result )
@@ -54,36 +60,6 @@ IN: fed
     dup filename>> swap
     dup lines>> rot
     utf8 set-file-lines
-;
-
-! :: d ( buffer -- buffer )
-!     buffer linenum>> :> ln
-!     buffer lines>> :> ls
-!     buffer totallines>> :> l
-!     0 ln 1 - ls subseq :> before
-!     ln l ls subseq :> after
-!     before after append :> result
-!     buffer result >>lines
-!     buffer lines>> length :> newlines
-!     buffer newlines >>totallines
-!     . . . buffer
-! ;
-
-! bug version?
-! :: d ( buffer -- buffer )
-!     buffer linenum>> :> ln
-!     buffer lines>> :> ls
-!     buffer totallines>> :> l
-!     0 ln 1 - ls subseq :> before
-!     ln l ls subseq :> after
-!     before after append :> result
-!     buffer result >>lines
-!     buffer lines>> length buffer swap >>totallines
-! ;
-
-: testbuf ( -- buffer )
-    "work/fed/test" dup utf8 file-lines <buffer> [ dup length>> dup ] dip
-    swap >>totallines swap >>linenum swap >>lines swap >>filename
 ;
 
 : d ( buffer -- buffer )

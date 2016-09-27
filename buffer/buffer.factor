@@ -3,9 +3,9 @@
 USING: kernel ;
 IN: fed.buffer
 
-TUPLE: buffer lines linenum totallines prompt filename ;
+TUPLE: buffer lines linenum totallines prompt filename saved? changed? ;
 
 : <buffer> ( -- buffer )
-    { "" } 1 1 "" "" buffer boa
+    { "" } 1 1 "" "" t f buffer boa
 ;
 

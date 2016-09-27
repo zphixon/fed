@@ -7,11 +7,6 @@ USING: sequences sequences.generalizations prettyprint
     locals arrays namespaces fed.buffer ;
 IN: fed
 
-: testbuf ( -- buffer )
-    "work/fed/test" dup utf8 file-lines <buffer> [ dup length>> dup ] dip
-    swap >>totallines swap >>linenum swap >>lines swap >>filename
-;
-
 ! splice array into another
 : splice ( index into from -- result )
     [ dup 0 swap ] 2dip
@@ -43,6 +38,7 @@ IN: fed
     splice                          ! splice in at line number
     >>lines                         ! set new lines
     dup lines>> length >>totallines ! set new length of file
+    f >>saved?
 ;
 
 ! insert
@@ -53,6 +49,7 @@ IN: fed
     splice                          ! splice in before line number
     >>lines                         ! set new lines
     dup lines>> length >>totallines ! set new file length
+    f >>saved?
 ;
 
 ! save file
@@ -60,20 +57,50 @@ IN: fed
     dup filename>> swap
     dup lines>> rot
     utf8 set-file-lines
+    t >>saved?
+    t >>changed?
 ;
 
+! delete line
 : d ( buffer -- buffer )
-    dup lines>>
-    [ dup linenum>> 0 swap 1 - ] dip
-    dup [ subseq ] dip
-    [ dup linenum>> ] 2dip [ swap ] dip
+    dup lines>>                          ! get lines
+    [ dup linenum>> 0 swap 1 - ] dip     ! set up first subsequence
+    dup [ subseq ] dip                   ! get lines before deleted line
+    [ dup linenum>> ] 2dip [ swap ] dip  ! set up second subsequence
     dup [ length ] dip
-    subseq append
-    dup length
-    [ >>lines ] dip
-    >>totallines
+    subseq append                        ! get lines after deleted line
+    dup length                           ! get new totallines
+    [ >>lines ] dip                      ! set new lines
+    >>totallines                         ! set new totallines
+    f >>saved?
 ;
 
+: q ( buffer -- buffer quit? )
+    dup saved?>> [
+        f
+    ] [
+        "unsaved changes: quit? yes/n " write flush readln
+        "yes" = [
+            f >>changed?
+            f
+        ] [
+            "aborting" print
+            t
+        ] if
+    ] if
+;
+
+: p ( buffer -- buffer )
+    dup lines>> [ print ] each
+;
+
+: n ( buffer -- buffer )
+    dup lines>> [
+        1 + number>string write bl print
+    ] each-index
+;
+
+! ugh
 : parsecommand ( buffer command -- buffer quit? )
     string>number dup [             ! convert to number
         [ 1 >= ] keep               ! check bounds of number
@@ -93,19 +120,18 @@ IN: fed
     t
 ;
 
-! dreading the day I need to refactor
 : fedloop ( buffer -- buffer )
     ! wait for commands
     [                                           ! loop begin
         dup prompt>> write flush readln         ! prompt for command
         {
-            { "q" [                             ! match quit
-                ! dup lines>> [ print ] each      ! print out file for now
-                f ] }                           ! condition for loop
+            { "q" [ q ] }                       ! quit
+            { "p" [ p t ] }                     ! print
+            { "n" [ n t ] }
             { "a" [ a t ] }                     ! append
             { "i" [ i t ] }                     ! insert
-            { "w" [ w t ] }
-            { "d" [ d t ] }
+            { "w" [ w t ] }                     ! write
+            { "d" [ d t ] }                     ! delete line
             { "debug" [ dup .  t ] }            ! debug
             [ parsecommand ]                    ! none of the above
         } case                                  ! match command
@@ -113,8 +139,13 @@ IN: fed
 ;
 
 : fed ( -- )
-    ! 1 2 (command-line) subseq first ! get filename to edit
     command-line get first
+
+    dup [ ] [
+        "File name required." print
+        drop ""
+    ] if
+
     dup exists? [
         dup utf8 file-lines <buffer>
         [ dup length dup ] dip
@@ -124,15 +155,20 @@ IN: fed
         swap >>filename
     ] [
         drop <buffer>
-        "no file name: cannot save" print
+        "file does not exist: cannot save (yet!)" print
     ] if
 
     ! print length: not really right but whatever it's familiar
     dup lines>> "\n" join length number>string print
 
+    dup clone
     fedloop ! enter main loop
 
-    lines>> "\n" join length number>string print
+    dup changed?>> [
+        lines>> "\n" join length number>string print drop
+    ] [
+        drop lines>> "\n" join length number>string print
+    ] if
 ;
 
 MAIN: fed

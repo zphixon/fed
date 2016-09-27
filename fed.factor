@@ -35,9 +35,8 @@ IN: fed
     [ dup lines>> ] dip             ! get lines
     [ dup linenum>> ] 2dip          ! get line number
     splice                          ! splice in at line number
-    swap dup -rot lines<<           ! set result to lines
-    dup lines>> length              ! get length of lines
-    swap dup -rot totallines<<      ! set length to file length
+    >>lines                         ! set new lines
+    dup lines>> length >>totallines ! set new length of file
 ;
 
 ! insert
@@ -46,9 +45,8 @@ IN: fed
     [ dup lines>> ] dip
     [ dup linenum>> 1 - ] 2dip      ! get line number above
     splice                          ! splice in before line number
-    swap dup -rot lines<<           ! set result to lines
-    dup lines>> length              ! get length
-    swap dup -rot totallines<<      ! set to file length
+    >>lines                         ! set new lines
+    dup lines>> length >>totallines ! set new file length
 ;
 
 ! save file
@@ -58,17 +56,18 @@ IN: fed
     utf8 set-file-lines
 ;
 
-:: d ( buffer -- buffer )
-    buffer linenum>> :> ln
-    buffer lines>> :> ls
-    buffer totallines>> :> l
-    0 ln 1 - ls subseq :> before
-    ln l ls subseq :> after
-    before after append :> result
-    buffer result >>lines
-    buffer lines>> length :> newlines
-    buffer newlines >>totallines
-;
+! :: d ( buffer -- buffer )
+!     buffer linenum>> :> ln
+!     buffer lines>> :> ls
+!     buffer totallines>> :> l
+!     0 ln 1 - ls subseq :> before
+!     ln l ls subseq :> after
+!     before after append :> result
+!     buffer result >>lines
+!     buffer lines>> length :> newlines
+!     buffer newlines >>totallines
+!     . . . buffer
+! ;
 
 ! bug version?
 ! :: d ( buffer -- buffer )
@@ -81,6 +80,23 @@ IN: fed
 !     buffer result >>lines
 !     buffer lines>> length buffer swap >>totallines
 ! ;
+
+: testbuf ( -- buffer )
+    "work/fed/test" dup utf8 file-lines <buffer> [ dup length>> dup ] dip
+    swap >>totallines swap >>linenum swap >>lines swap >>filename
+;
+
+: d ( buffer -- buffer )
+    dup lines>>
+    [ dup linenum>> 0 swap 1 - ] dip
+    dup [ subseq ] dip
+    [ dup linenum>> ] 2dip [ swap ] dip
+    dup [ length ] dip
+    subseq append
+    dup length
+    [ >>lines ] dip
+    >>totallines
+;
 
 : parsecommand ( buffer command -- buffer quit? )
     string>number dup [             ! convert to number
@@ -125,12 +141,11 @@ IN: fed
     command-line get first
     dup exists? [
         dup utf8 file-lines <buffer>
-        dup -rot lines<<
-        dup lines>> length
-        swap dup -rot linenum<<
-        dup linenum>>
-        swap dup -rot totallines<<
-        dup -rot filename<<
+        [ dup length dup ] dip
+        swap >>totallines
+        swap >>linenum
+        swap >>lines
+        swap >>filename
     ] [
         drop <buffer>
         "no file name: cannot save" print

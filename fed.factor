@@ -3,7 +3,7 @@
 USING: sequences sequences.generalizations prettyprint
     command-line math kernel io io.encodings.utf8
     io.files accessors math.parser combinators strings
-    locals arrays fed.buffer ;
+    locals arrays namespaces fed.buffer ;
 IN: fed
 
 ! splice array into another
@@ -14,6 +14,7 @@ IN: fed
     rot append append
 ;
 
+! get input until single . on a line
 : getinput ( -- input )
     { } [
         readln
@@ -50,6 +51,17 @@ IN: fed
     swap dup -rot totallines<<      ! set to file length
 ;
 
+! save file
+: w ( buffer -- buffer )
+    dup filename>> swap
+    dup lines>> rot
+    utf8 set-file-lines
+;
+
+! : d ( buffer -- buffer )
+!     
+! ;
+
 : parsecommand ( buffer command -- buffer quit? )
     string>number dup [             ! convert to number
         [ 1 >= ] keep               ! check bounds of number
@@ -76,37 +88,40 @@ IN: fed
         dup prompt>> write flush readln         ! prompt for command
         {
             { "q" [                             ! match quit
-                dup lines>> [ print ] each      ! print out file for now
+                ! dup lines>> [ print ] each      ! print out file for now
                 f ] }                           ! condition for loop
             { "a" [ a t ] }                     ! append
             { "i" [ i t ] }                     ! insert
-            { "d" [ dup .  t ] }                ! debug
+            { "w" [ w t ] }
+            { "d" [ d t ] }
+            { "debug" [ dup .  t ] }            ! debug
             [ parsecommand ]                    ! none of the above
         } case                                  ! match command
     ] loop                                      ! loop while still editing
 ;
 
 : fed ( -- )
-    1 2 (command-line) subseq first ! get filename to edit
-    dup print
+    ! 1 2 (command-line) subseq first ! get filename to edit
+    command-line get first
     dup exists? [
-        utf8 file-lines <buffer>
+        dup utf8 file-lines <buffer>
         dup -rot lines<<
         dup lines>> length
         swap dup -rot linenum<<
-        dup lines>> length
+        dup linenum>>
         swap dup -rot totallines<<
+        dup -rot filename<<
     ] [
         drop <buffer>
+        "no file name: cannot save" print
     ] if
 
     ! print length: not really right but whatever it's familiar
-    dup lines>> "\n" join length .
+    dup lines>> "\n" join length number>string print
 
     fedloop ! enter main loop
 
-    ! lines>> write ! to file
-    drop
+    lines>> "\n" join length number>string print
 ;
 
 MAIN: fed

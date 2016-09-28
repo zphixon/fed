@@ -10,7 +10,7 @@ Todo:
 This is a clone of gnu `ed`, the standard text editor on \*nix systems. `ed`
 is what [real programmers
 ](http://explainxkcd.com/wiki/index.php/378:_Real_Programmers) use. Of course
-`fed` is written in ed. (just kidding)
+`fed` is written in `ed`. [(not really)](https://github.com/neovim/neovim)
 
 ## why
 

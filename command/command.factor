@@ -2,7 +2,8 @@
 ! see LICENSE.txt for copyright notice
 
 USING: kernel fed.util accessors io.encodings.utf8 sequences math
-    io.files io math.parser ;
+    prettyprint io.files io math.parser combinators locals peg.ebnf
+    math.intervals ;
 IN: fed.command
 
 ! append
@@ -75,23 +76,45 @@ IN: fed.command
     ] each-index
 ;
 
+! EBNF grammar for parsing fed commands
+EBNF: fedcommand
+    digit   = [0-9]                     => [[ digit> ]]
+    number  = (digit)+                  => [[ 10 digits>integer ]]
+    range   = number:from "," number:to => [[ from to 2array ]]
+    letter  = [a-zA-Z]                  => [[ 1array >string ]]
+    command = (range)*letter+
+;EBNF
+
 ! ugh
-: parsecommand ( buffer command -- buffer quit? )
-    string>number dup [             ! convert to number
-        [ 1 >= ] keep               ! check bounds of number
-        [ dup totallines>> ] 2dip
-        rot swap
-        [ >= ] keep -rot and        ! if inside bounds
+:: parse ( buffer command -- buffer quit? )
+    command string>number :> num?
+
+    num? [
+        buffer totallines>> :> buflen
+        1 num? <=
+        num? buflen <= and            ! check bounds
         [
-            swap dup -rot linenum<< ! set line number
+            num? buffer linenum<<
         ] [
-            drop                    ! print error
             "?" print
         ] if
     ] [
-        "?" print                   ! unknown command
-        drop
+        ! "?" print
     ] if
-    t
+
+    buffer t
 ;
 
+: parsecommand ( buffer command -- buffer quit? )
+    {
+        { "q" [ q ] }                       ! quit
+        { "p" [ p t ] }                     ! print
+        { "n" [ n t ] }                     ! print with line numbers
+        { "a" [ a t ] }                     ! append
+        { "i" [ i t ] }                     ! insert
+        { "w" [ w t ] }                     ! write
+        { "d" [ d t ] }                     ! delete line
+        { "debug" [ dup . t ] }             ! debug
+        [ parse ]                           ! none of the above
+    } case                                  ! match command
+;

@@ -11,17 +11,7 @@ IN: fed
     ! wait for commands
     [                                           ! loop begin
         dup prompt>> write flush readln         ! prompt for command
-        {
-            { "q" [ q ] }                       ! quit
-            { "p" [ p t ] }                     ! print
-            { "n" [ n t ] }                     ! print with line numbers
-            { "a" [ a t ] }                     ! append
-            { "i" [ i t ] }                     ! insert
-            { "w" [ w t ] }                     ! write
-            { "d" [ d t ] }                     ! delete line
-            { "debug" [ dup .  t ] }            ! debug
-            [ parsecommand ]                    ! none of the above
-        } case                                  ! match command
+        parsecommand
     ] loop                                      ! loop while still editing
 ;
 

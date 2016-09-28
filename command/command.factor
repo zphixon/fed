@@ -2,18 +2,35 @@
 ! see LICENSE.txt for copyright notice
 
 USING: accessors fed.util kernel sequences math math.parser io io.files
-    io.encodings.utf8 ;
+    io.encodings.utf8 locals prettyprint ;
 IN: fed.command
 
-! append
-: a ( buffer -- buffer )
-    getinput                        ! get user input
-    [ dup lines>> ] dip             ! get lines
-    [ dup linenum>> ] 2dip          ! get line number
-    splice                          ! splice in at line number
-    >>lines                         ! set new lines
-    dup lines>> length >>totallines ! set new length of file
-    f >>saved?
+: a ( range buffer -- buffer q? )
+    [ dup first [ second ] dip [ = ] keep swap ] dip swap
+    [
+        dup totallines>> [ swap ] dip
+        swap [ >= ] keep swap            ! check in bounds
+        [
+            swap
+            getinput
+            [ dup lines>> ] dip
+            [ swap dup ] 2dip
+            splice
+            [ swap ] dip
+            >>lines
+            swap
+            >>linenum
+            f >>saved?
+        ] [
+            ! drop
+            .
+            "? out of bounds" print ! out of bounds
+        ] if
+    ] [
+        nip
+        "? no range allowed" print ! no range allowed
+    ] if
+    t
 ;
 
 ! insert
@@ -50,7 +67,8 @@ IN: fed.command
     f >>saved?
 ;
 
-: q ( buffer -- buffer quit? )
+: q ( range buffer -- buffer quit? )
+    nip
     dup saved?>> [
         f
     ] [
@@ -75,5 +93,5 @@ IN: fed.command
     ] each-index
 ;
 
-: nop ( -- ) ;
+: nop ( range buffer -- buffer ) nip ;
 

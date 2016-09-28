@@ -13,7 +13,8 @@ IN: fed.parse
         { "n" [ \ n ] }
         { "p" [ \ q ] }
         { "d" [ \ d ] }
-        [ drop "?" print \ nop ]
+        { "a" [ \ a ] }
+        [ drop "? unknown command" print \ nop ]
     } case
 ;
 
@@ -58,40 +59,35 @@ EBNF: fedcommand
 :: parse ( buffer command -- buffer quit? )
     command string>number :> num?
 
-    ! [
+    [
         command fedcommand :> ast
         { 1 1 } :> rangereal!
         ast number? [
             ! ast .
-            { ast ast } rangereal!
+            ! { ast ast } rangereal!
+            buffer ast >>linenum t
         ] [
             ! ast .
             ast first :> rangeraw
             buffer totallines>> rangeraw rangematch rangereal!
+            ast last :> commandstr
+            commandstr commandmatch :> cmd
             ! rangereal .
+            rangereal first rangereal second and [
+                rangereal buffer cmd execute( r b -- b q? )
+            ] [
+                buffer linenum>> :> ln
+                { ln ln } buffer cmd execute( r b -- b q? )
+            ] if
         ] if
 
-        rangereal .
-    ! ] [
-        ! .
-        ! drop
-        ! "?" print
-    ! ] recover
-
-    num? [
-        buffer totallines>> :> buflen
-        1 num? <=
-        num? buflen <= and            ! check bounds
-        [
-            num? buffer linenum<<
-        ] [
-            "?" print
-        ] if
+        ! rangereal .
     ] [
-        ! "?" print
-    ] if
-
-    buffer t
+        .
+        ! drop
+        "? error parsing" print
+        buffer t
+    ] recover
 ;
 
 

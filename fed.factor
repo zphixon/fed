@@ -1,10 +1,9 @@
 ! fed.factor: factor ed clone - (c) 2016 Zack Hixon
 ! see LICENSE.txt for copyright notice
 
-USING: sequences sequences.generalizations prettyprint
-    command-line math kernel io io.encodings.utf8
-    io.files accessors math.parser combinators
-    arrays namespaces fed.buffer fed.command fed.util fed.parse ;
+USING: accessors command-line fed.buffer io io.encodings.utf8
+    io.files kernel math.parser namespaces sequences fed.parse
+    kernel ;
 IN: fed
 
 : fedloop ( buffer -- buffer )

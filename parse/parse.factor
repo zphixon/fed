@@ -1,15 +1,9 @@
 ! Copyright (C) 2016 Zack Hixon
 ! see LICENSE.txt for copyright notice
 
-! USING: kernel fed.util accessors io.encodings.utf8 sequences math
-!     prettyprint io.files io math.parser combinators locals peg.ebnf
-!     arrays strings continuations accessors fed.buffer
-!     sorting fed.command ;
-
 USING: combinators fed.command io kernel accessors namespaces strings
     continuations prettyprint math math.parser sequences arrays
     locals sequences sorting peg.ebnf peg ;
-
 IN: fed.parse
 
 : commandmatch ( commandstr -- command )

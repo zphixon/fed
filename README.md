@@ -5,10 +5,29 @@ Todo:
 * Layering of commands **!!**
 * Ranges **!!**
 
-This is a clone of `ed`, the standard text editor on \*nix systems. `ed` is
-what [real programmers
+## what
+
+This is a clone of gnu `ed`, the standard text editor on \*nix systems. `ed`
+is what [real programmers
 ](http://explainxkcd.com/wiki/index.php/378:_Real_Programmers) use. Of course
 `fed` is written in ed. (just kidding)
+
+## why
+
+People probably haven't used `ed` seriously since the 80s, unless you're
+sshing into really old systems. It has, surprisingly, been continuously
+maintained by GNU project devs for a while, with the 2008 release of ed
+1.0 containing changes as far back as 1994. It contains quite a few
+extensions to the original ed, including extensions on the POSIX version as
+well as including features from BSD and SunOS and backwards compatibility
+that breaks POSIX compliance. I don't feel like reading the POSIX myself so
+don't expect complete compatibility with either GNU or POSIX `ed`.
+
+`ed` is pretty historic, and it's in fact older than I am. It would be a
+shame to see such influential technology die out, hence why I'm trying to
+continue it in a modern form.
+
+## how
 
 Factor is a pretty neat concatenative stack-based language that has an
 *awesome* library and community, and I'm really enjoying it so far. I wrote

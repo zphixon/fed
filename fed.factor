@@ -4,7 +4,7 @@
 USING: sequences sequences.generalizations prettyprint
     command-line math kernel io io.encodings.utf8
     io.files accessors math.parser combinators
-    arrays namespaces fed.buffer fed.command fed.util ;
+    arrays namespaces fed.buffer fed.command fed.util fed.parse ;
 IN: fed
 
 : fedloop ( buffer -- buffer )

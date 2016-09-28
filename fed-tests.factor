@@ -6,7 +6,7 @@ IN: fed.tests
 
 ! load test buffer
 : testbuf ( -- buffer )
-    "test" dup utf8 file-lines <buffer> [ dup length>> dup ] dip
+    "work/fed/test" dup utf8 file-lines <buffer> [ dup length>> dup ] dip
     swap >>totallines swap >>linenum swap >>lines swap >>filename
 ;
 

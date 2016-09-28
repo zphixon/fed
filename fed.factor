@@ -51,13 +51,11 @@ IN: fed
     ! dup clone
     fedloop ! enter main loop
 
-    drop
-
-    ! dup changed?>> [
-    !     lines>> "\n" join length number>string print drop
-    ! ] [
-    !     drop lines>> "\n" join length number>string print
-    ! ] if
+    dup changed?>> [
+        lines>> "\n" join length number>string print
+    ] [
+        drop
+    ] if
 ;
 
 MAIN: fed

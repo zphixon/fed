@@ -11,7 +11,7 @@ IN: fed
     ! wait for commands
     [                                           ! loop begin
         dup prompt>> write flush readln         ! prompt for command
-        parsecommand
+        "\n" append parse                ! make it easier to parse
     ] loop                                      ! loop while still editing
 ;
 

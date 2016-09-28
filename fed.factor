@@ -48,14 +48,16 @@ IN: fed
     ! print length: not really right but whatever it's familiar
     dup lines>> "\n" join length number>string print
 
-    dup clone
+    ! dup clone
     fedloop ! enter main loop
 
-    dup changed?>> [
-        lines>> "\n" join length number>string print drop
-    ] [
-        drop lines>> "\n" join length number>string print
-    ] if
+    drop
+
+    ! dup changed?>> [
+    !     lines>> "\n" join length number>string print drop
+    ! ] [
+    !     drop lines>> "\n" join length number>string print
+    ! ] if
 ;
 
 MAIN: fed

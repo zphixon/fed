@@ -27,6 +27,11 @@ don't expect complete compatibility with either GNU or POSIX `ed`.
 shame to see such influential technology die out, hence why I'm trying to
 continue it in a modern form.
 
+Unfortunately, `ed` is a ~~stupid, moronic, frankly ridiculous piece of
+software that supports some frankly ridiculous things~~ antiquated bit of
+software, so my sanity is a bit hard pressed. Since when do you have to write
+a command parser for a text editor?
+
 ## how
 
 Factor is a pretty neat concatenative stack-based language that has an

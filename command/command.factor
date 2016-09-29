@@ -5,44 +5,83 @@ USING: accessors fed.util kernel sequences math math.parser io io.files
     io.encodings.utf8 locals prettyprint ;
 IN: fed.command
 
-! : checkrange ( range -- elem equal? )
-!     dup first [ second ] dip [ = ] keep swap
+ERROR: cmderr summary range args buffer ;
+
+! ! check for second element false
+! : checkrange ( range -- elem ok? )
+!     dup second swap first f swap ? dup not not
+! ;
+!
+! ! check if in bounds of buffer
+! : inbounds ( elem buffer -- buffer elem inbounds? )
+!     dup totallines>> [ swap ] dip
+!     swap [ >= ] keep swap
 ! ;
 
-: checkrange ( range -- elem ok? )
-    dup second swap first f swap ? dup not not
+: checkranged ( range -- ok? )
+    second not [
+        t
+    ] [
+        f
+    ] if
 ;
 
-: inbounds ( elem buffer -- buffer elem inbounds? )
-    dup totallines>> [ swap ] dip
-    swap [ >= ] keep swap
+: inboundsd ( buffer elem -- ok? )
+    [ totallines>> ] dip swap <=
 ;
 
-! append
-: a ( range buffer -- buffer q? )
-    [ checkrange ] dip swap [
-        inbounds [
-            swap
-            getinput
-            [ dup lines>> ] dip
-            [ swap dup ] 2dip
-            splice
-            [ swap ] dip
-            >>lines
-            swap
-            >>linenum
-            f >>saved?
+:: a ( argstr range buffer -- buffer continue? )
+    ! "a:" print
+    ! argstr .
+    ! range .
+    ! ! buffer .
+    range checkranged [
+        buffer range first inboundsd [
+            argstr empty? [
+                range first :> line
+                buffer lines>> :> into
+                getinput :> from
+                line into from splice :> newlines
+                newlines buffer lines<<
+                line buffer linenum<<
+                ! . .
+                buffer t
+            ] [
+                "no args allowed" range argstr buffer cmderr
+            ] if
         ] [
-            drop
-            ! USE: prettyprint .
-            "? out of bounds" print
+            "out of bounds" range argstr buffer cmderr
         ] if
     ] [
-        nip
-        "? no range allowed" print
+        "no range allowed" range argstr buffer cmderr
     ] if
-    t
 ;
+
+! ! append
+! : a ( argstr range buffer -- buffer q? )
+!     [ checkrange ] dip swap [
+!         inbounds [
+!             swap
+!             getinput
+!             [ dup lines>> ] dip
+!             [ swap dup ] 2dip
+!             splice
+!             [ swap ] dip
+!             >>lines
+!             swap
+!             >>linenum
+!             f >>saved?
+!         ] [
+!             drop
+!             ! USE: prettyprint .
+!             "? out of bounds" print
+!         ] if
+!     ] [
+!         nip
+!         "? no range allowed" print
+!     ] if
+!     t
+! ;
 
 : i ( range buffer -- buffer q? )
     [ checkrange ] dip swap [

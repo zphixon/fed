@@ -49,46 +49,67 @@ IN: fed.parse
     ] if
 ;
 
-! note to self: do not change
-! EBNF grammar for parsing fed commands
+! ! note to self: do not change
+! ! EBNF grammar for parsing fed commands
+! EBNF: fedcommand
+!     digit     = [0-9]                              => [[ digit> ]]
+!     number    = (digit)+                           => [[ 10 digits>integer ]]
+!     range     = number?:from ","*:comma number?:to => [[ from to comma ?first 3array ]]
+!     letter    = [a-zA-Z]                           => [[ 1array >string ]]
+!     ranged    = (range)?letter
+!     command   = (ranged|number) "\n"               => [[ first ]]
+!     rule      = command
+! ;EBNF
+! ! unfortunately doesn't support comments inside
+
 EBNF: fedcommand
     digit     = [0-9]                              => [[ digit> ]]
     number    = (digit)+                           => [[ 10 digits>integer ]]
     range     = number?:from ","*:comma number?:to => [[ from to comma ?first 3array ]]
     letter    = [a-zA-Z]                           => [[ 1array >string ]]
-    ranged    = (range)?letter
+    args      = (!("\n") .)*                       => [[ >string dup [ ] [ drop f ] if ]]
+    ranged    = (range)?letter(args)?
     command   = (ranged|number) "\n"               => [[ first ]]
     rule      = command
 ;EBNF
-! unfortunately doesn't support comments inside
 
 :: parse ( buffer command -- buffer quit? )
     command string>number :> num?
 
     command "debug" = [ buffer . ] [ ] if
 
+    t :> helpmsg?
+
     [
         command fedcommand :> ast
         { 1 1 } :> rangereal!
         ast number? [
-            ! ast .
+            ast .
             ! { ast ast } rangereal!
             buffer ast >>linenum t
         ] [
-            ! ast .
+            ast .
             ast first :> rangeraw
             buffer linenum>> buffer totallines>> rangeraw rangematch rangereal!
-            ast last :> commandstr
+            ast second :> commandstr
             commandstr commandmatch :> cmd
+            ast third :> argstr
 
-            rangereal buffer cmd execute( r b -- b q? )
+            [
+                argstr rangereal buffer cmd execute( a r b -- b q? )
+            ] [
+                ! [ 3drop ] dip
+                helpmsg? [ summary>> print ] [ drop "? error " print ] if
+                ! .
+                buffer t
+            ] recover
         ] if
     ] [
-        ! .
-        drop
+        ! summary>> print
+        .
+        ! drop
         "? error parsing" print
         buffer t
     ] recover
 ;
-
 

@@ -7,18 +7,7 @@ IN: fed.command
 
 ERROR: cmderr summary range args buffer ;
 
-! ! check for second element false
-! : checkrange ( range -- elem ok? )
-!     dup second swap first f swap ? dup not not
-! ;
-!
-! ! check if in bounds of buffer
-! : inbounds ( elem buffer -- buffer elem inbounds? )
-!     dup totallines>> [ swap ] dip
-!     swap [ >= ] keep swap
-! ;
-
-: checkranged ( range -- ok? )
+: oneranged ( range -- ok? )
     second not [
         t
     ] [
@@ -26,85 +15,90 @@ ERROR: cmderr summary range args buffer ;
     ] if
 ;
 
+: noranged ( range -- ok? )
+    dup first
+    [ second ] dip
+    or not
+;
+
 : inboundsd ( buffer elem -- ok? )
     [ totallines>> ] dip swap <=
 ;
 
 :: a ( argstr range buffer -- buffer continue? )
-    ! "a:" print
-    ! argstr .
-    ! range .
-    ! ! buffer .
-    range checkranged [
-        buffer range first inboundsd [
+    range oneranged [
+        range first [
+            buffer range first inboundsd [
+                argstr empty? [
+                    range first :> line
+                    buffer lines>> :> into
+                    getinput :> from
+                    line into from splice :> newlines
+                    newlines buffer lines<<
+                    line buffer linenum<<
+                    f buffer saved?<<
+                    buffer t
+                ] [
+                    "no args allowed" range argstr buffer cmderr
+                ] if
+            ] [
+                "out of bounds" range argstr buffer cmderr
+            ] if
+        ] [
             argstr empty? [
-                range first :> line
+                buffer linenum>> :> line
                 buffer lines>> :> into
                 getinput :> from
                 line into from splice :> newlines
                 newlines buffer lines<<
                 line buffer linenum<<
-                ! . .
+                f buffer saved?<<
                 buffer t
             ] [
                 "no args allowed" range argstr buffer cmderr
             ] if
-        ] [
-            "out of bounds" range argstr buffer cmderr
         ] if
     ] [
         "no range allowed" range argstr buffer cmderr
     ] if
 ;
 
-! ! append
-! : a ( argstr range buffer -- buffer q? )
-!     [ checkrange ] dip swap [
-!         inbounds [
-!             swap
-!             getinput
-!             [ dup lines>> ] dip
-!             [ swap dup ] 2dip
-!             splice
-!             [ swap ] dip
-!             >>lines
-!             swap
-!             >>linenum
-!             f >>saved?
-!         ] [
-!             drop
-!             ! USE: prettyprint .
-!             "? out of bounds" print
-!         ] if
-!     ] [
-!         nip
-!         "? no range allowed" print
-!     ] if
-!     t
-! ;
-
-: i ( range buffer -- buffer q? )
-    [ checkrange ] dip swap [
-        inbounds [
-            swap getinput
-            [ dup lines>> ] dip
-            [ swap dup 1 - ] 2dip
-            splice
-            [ swap ] dip
-            >>lines
-            swap
-            >>linenum
-            f >>saved?
+:: i ( argstr range buffer -- buffer continue? )
+    range oneranged [
+        range first [
+            buffer range first inboundsd [
+                argstr empty? [
+                    range first 1 - :> line
+                    buffer lines>> :> into
+                    getinput :> from
+                    line into from splice :> newlines
+                    newlines buffer lines<<
+                    line buffer linenum<<
+                    f buffer saved?<<
+                    buffer t
+                ] [
+                    "no args allowed" range argstr buffer cmderr
+                ] if
+            ] [
+                "out of bounds" range argstr buffer cmderr
+            ] if
         ] [
-            drop
-            ! USE: prettyprint .
-            "? out of bounds" print
+            argstr empty? [
+                buffer linenum>> 1 - :> line
+                buffer lines>> :> into
+                getinput :> from
+                line into from splice :> newlines
+                newlines buffer lines<<
+                line buffer linenum<<
+                f buffer saved?<<
+                buffer t
+            ] [
+                "no args allowed" range argstr buffer cmderr
+            ] if
         ] if
     ] [
-        nip
-        "? no range allowed" print
+        "no range allowed" range argstr buffer cmderr
     ] if
-    t
 ;
 
 ! : w ( range buffer -- buffer q? )
@@ -139,19 +133,26 @@ ERROR: cmderr summary range args buffer ;
     f >>saved?
 ;
 
-: q ( range buffer -- buffer quit? )
-    nip
-    dup saved?>> [
-        f
-    ] [
-        "unsaved changes: quit? yes/n " write flush readln
-        "yes" = [
-            f >>changed?
-            f
+:: q ( argstr range buffer -- buffer continue? )
+    range noranged [
+        argstr empty? [
+            buffer saved?>> [
+                buffer f
+            ] [
+                "unsaved changes: quit? yes/n " write flush readln
+                "yes" = [
+                    f buffer changed?<<
+                    buffer f
+                ] [
+                    "aborting" print
+                    buffer t
+                ] if
+            ] if
         ] [
-            "aborting" print
-            t
+            "no args allowed" range argstr buffer cmderr
         ] if
+    ] [
+        "no range allowed" range argstr buffer cmderr
     ] if
 ;
 

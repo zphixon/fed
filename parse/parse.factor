@@ -43,7 +43,7 @@ IN: fed.parse
             from [                            ! 12n
                 { from f }
             ] [                               ! n
-                { linenum f }
+                { f f }
             ] if
         ] if
     ] if
@@ -96,6 +96,7 @@ EBNF: fedcommand
             ast third :> argstr
 
             [
+                rangereal .
                 argstr rangereal buffer cmd execute( a r b -- b q? )
             ] [
                 ! [ 3drop ] dip

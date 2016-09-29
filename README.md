@@ -3,7 +3,9 @@
 Todo:
 
 * Layering of commands **!!**
-* Ranges **!!**
+* Ranges -- mostly:
+  * update commands that use ranges to use ranges (I kinda started bass
+  ackwards)
 
 ## what
 

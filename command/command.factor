@@ -101,23 +101,29 @@ ERROR: cmderr summary range args buffer ;
     ] if
 ;
 
-! : w ( range buffer -- buffer q? )
-!     [ checkrangeequal ] dip swap [
-!     
-!     ] [
-!         nip
-!         "? no range allowed" print
-!     ] if
-! ;
-
-! save file
-: w ( buffer -- buffer )
-    dup filename>> swap
-    dup lines>> rot
-    utf8 set-file-lines
-    t >>saved?
-    t >>changed?
+:: w ( argstr range buffer -- buffer continue? )
+    range noranged [
+        argstr empty? [
+            buffer lines>> buffer filename>> utf8 set-file-lines
+            t buffer saved?<<
+            t buffer changed?<<
+            buffer t
+        ] [
+            "no args allowed" range argstr buffer cmderr
+        ] if
+    ] [
+        "no range allowed" range argstr buffer cmderr
+    ] if
 ;
+
+! ! save file
+! : w ( buffer -- buffer )
+!     dup filename>> swap
+!     dup lines>> rot
+!     utf8 set-file-lines
+!     t >>saved?
+!     t >>changed?
+! ;
 
 ! delete line
 : d ( buffer -- buffer )
@@ -156,14 +162,24 @@ ERROR: cmderr summary range args buffer ;
     ] if
 ;
 
-: p ( buffer -- buffer )
-    dup lines>> [ print ] each
-;
+! :: p ( argstr range buffer -- buffer continue? )
+! ;
 
-: n ( buffer -- buffer )
-    dup lines>> [
-        1 + number>string write bl print
-    ] each-index
+:: n ( argstr range buffer -- buffer continue? )
+    argstr empty? [
+        range first range last and not [
+            buffer linenum>> number>string write "\t" write flush
+            buffer linenum>> 1 - buffer lines>> nth print
+        ] [
+            range first 1 - range last buffer lines>> subseq [
+                range first + number>string write "\t" write flush print
+            ] each-index
+        ] if
+    ] [
+        "no args allowed" range argstr buffer cmderr
+    ] if
+
+    buffer t
 ;
 
 : nop ( range buffer -- buffer ) nip ;

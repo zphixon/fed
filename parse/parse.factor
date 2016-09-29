@@ -19,6 +19,8 @@ IN: fed.parse
     } case
 ;
 
+ERROR: rangeerr summary from to ;
+
 :: rangematch ( linenum buflen rangeraw -- range )
     rangeraw first :> from
     rangeraw second :> to
@@ -26,14 +28,18 @@ IN: fed.parse
 
     ! command is not part of what we're looking at
     from to and [                             ! 1,2n
-        from to sort-pair 2array
+        from to > not [
+            from to 2array
+        ] [
+            "invalid range" from to rangeerr
+        ] if
     ] [                                       ! ,2n || 1,n || ,n || 1n
         comma [                               ! 1,n || ,2n
             from [                            ! 1,n
-                from buflen sort-pair 2array
+                from buflen 2array
             ] [                               ! ,2n || ,n
                 to [                          ! ,2n
-                    1 to sort-pair 2array
+                    1 to 2array
                 ] [                           ! ,n
                     1 buflen 2array
                 ] if
@@ -84,32 +90,30 @@ EBNF: fedcommand
         command fedcommand :> ast
         { 1 1 } :> rangereal!
         ast number? [
-            ast .
-            ! { ast ast } rangereal!
+            ! ast .
             buffer ast >>linenum t
         ] [
-            ast .
-            ast first :> rangeraw
-            buffer linenum>> buffer totallines>> rangeraw rangematch rangereal!
-            ast second :> commandstr
-            commandstr commandmatch :> cmd
-            ast third :> argstr
-
+            ! ast .
             [
-                rangereal .
+                ast first :> rangeraw
+                buffer linenum>> buffer totallines>> rangeraw rangematch rangereal!
+                ast second :> commandstr
+                commandstr commandmatch :> cmd
+                ast third :> argstr
+                ! rangereal .
                 argstr rangereal buffer cmd execute( a r b -- b q? )
             ] [
-                ! [ 3drop ] dip
-                helpmsg? [ summary>> print ] [ drop "? error " print ] if
+                "?" print
+                helpmsg? [ summary>> print ] [ drop ] if
                 ! .
                 buffer t
             ] recover
         ] if
     ] [
         ! summary>> print
-        .
         ! drop
         "? error parsing" print
+        .
         buffer t
     ] recover
 ;

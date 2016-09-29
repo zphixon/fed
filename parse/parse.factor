@@ -59,6 +59,8 @@ EBNF: fedcommand
 :: parse ( buffer command -- buffer quit? )
     command string>number :> num?
 
+    command "debug" = [ buffer . ] [ ] if
+
     [
         command fedcommand :> ast
         { 1 1 } :> rangereal!

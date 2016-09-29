@@ -2,15 +2,22 @@
 ! see LICENSE.txt for copyright notice
 
 USING: accessors fed.util kernel sequences math math.parser io io.files
-    io.encodings.utf8 locals prettyprint ;
+    io.encodings.utf8 locals ;
 IN: fed.command
 
+: checkrangeequal ( range -- elem equal? )
+    dup first [ second ] dip [ = ] keep swap
+;
+
+: inbounds ( elem buffer -- buffer elem inbounds? )
+    dup totallines>> [ swap ] dip
+    swap [ >= ] keep swap
+;
+
+! append
 : a ( range buffer -- buffer q? )
-    [ dup first [ second ] dip [ = ] keep swap ] dip swap
-    [
-        dup totallines>> [ swap ] dip
-        swap [ >= ] keep swap            ! check in bounds
-        [
+    [ checkrangeequal ] dip swap [
+        inbounds [
             swap
             getinput
             [ dup lines>> ] dip
@@ -22,26 +29,39 @@ IN: fed.command
             >>linenum
             f >>saved?
         ] [
-            ! drop
-            .
-            "? out of bounds" print ! out of bounds
+            drop
+            ! USE: prettyprint .
+            "? out of bounds" print
         ] if
     ] [
         nip
-        "? no range allowed" print ! no range allowed
+        "? no range allowed" print
     ] if
     t
 ;
 
-! insert
-: i ( buffer -- buffer )
-    getinput
-    [ dup lines>> ] dip
-    [ dup linenum>> 1 - ] 2dip      ! get line number above
-    splice                          ! splice in before line number
-    >>lines                         ! set new lines
-    dup lines>> length >>totallines ! set new file length
-    f >>saved?
+: i ( range buffer -- buffer q? )
+    [ checkrangeequal ] dip swap [
+        inbounds [
+            swap getinput
+            [ dup lines>> ] dip
+            [ swap dup 1 - ] 2dip
+            splice
+            [ swap ] dip
+            >>lines
+            swap
+            >>linenum
+            f >>saved?
+        ] [
+            drop
+            ! USE: prettyprint .
+            "? out of bounds" print
+        ] if
+    ] [
+        nip
+        "? no range allowed" print
+    ] if
+    t
 ;
 
 ! save file

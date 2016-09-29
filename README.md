@@ -2,10 +2,19 @@
 
 Todo:
 
-* Layering of commands **!!**
 * Ranges -- mostly:
   * update commands that use ranges to use ranges (I kinda started bass
   ackwards)
+* More commands
+  * `s`, `r`, `e`, `w filename`, `wq`, `m`, `P`, `!`, `# comments`
+  * more stuff that I probably forgot
+  * and probably update the parser for (kill me)
+* More addresses
+  * `.`, `$`, `+`, `-`, `;`
+  * again, rewriting the parser for more stuff
+* Searching using `/regex/` and `?regex?`
+* Marks
+* see `info ed` for the lot of stuff that I have to put in
 
 ## what
 

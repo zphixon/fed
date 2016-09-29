@@ -2,11 +2,15 @@
 ! see LICENSE.txt for copyright notice
 
 USING: accessors fed.util kernel sequences math math.parser io io.files
-    io.encodings.utf8 locals ;
+    io.encodings.utf8 locals prettyprint ;
 IN: fed.command
 
-: checkrangeequal ( range -- elem equal? )
-    dup first [ second ] dip [ = ] keep swap
+! : checkrange ( range -- elem equal? )
+!     dup first [ second ] dip [ = ] keep swap
+! ;
+
+: checkrange ( range -- elem ok? )
+    dup second swap first f swap ? dup not not
 ;
 
 : inbounds ( elem buffer -- buffer elem inbounds? )
@@ -16,7 +20,7 @@ IN: fed.command
 
 ! append
 : a ( range buffer -- buffer q? )
-    [ checkrangeequal ] dip swap [
+    [ checkrange ] dip swap [
         inbounds [
             swap
             getinput
@@ -41,7 +45,7 @@ IN: fed.command
 ;
 
 : i ( range buffer -- buffer q? )
-    [ checkrangeequal ] dip swap [
+    [ checkrange ] dip swap [
         inbounds [
             swap getinput
             [ dup lines>> ] dip
@@ -63,6 +67,15 @@ IN: fed.command
     ] if
     t
 ;
+
+! : w ( range buffer -- buffer q? )
+!     [ checkrangeequal ] dip swap [
+!     
+!     ] [
+!         nip
+!         "? no range allowed" print
+!     ] if
+! ;
 
 ! save file
 : w ( buffer -- buffer )

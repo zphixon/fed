@@ -14,11 +14,12 @@ IN: fed.parse
         { "p" [ \ q ] }
         { "d" [ \ d ] }
         { "a" [ \ a ] }
+        { "i" [ \ i ] }
         [ drop "? unknown command" print \ nop ]
     } case
 ;
 
-:: rangematch ( buflen rangeraw -- range )
+:: rangematch ( linenum buflen rangeraw -- range )
     rangeraw first :> from
     rangeraw second :> to
     rangeraw last :> comma
@@ -37,8 +38,13 @@ IN: fed.parse
                     1 buflen 2array
                 ] if
             ] if
-        ] [                                   ! 12n
-            { from from }
+        ] [                                   ! 12n || n
+            ! { from f }
+            from [                            ! 12n
+                { from f }
+            ] [                               ! n
+                { linenum f }
+            ] if
         ] if
     ] if
 ;
@@ -71,22 +77,15 @@ EBNF: fedcommand
         ] [
             ! ast .
             ast first :> rangeraw
-            buffer totallines>> rangeraw rangematch rangereal!
+            buffer linenum>> buffer totallines>> rangeraw rangematch rangereal!
             ast last :> commandstr
             commandstr commandmatch :> cmd
-            ! rangereal .
-            rangereal first rangereal second and [
-                rangereal buffer cmd execute( r b -- b q? )
-            ] [
-                buffer linenum>> :> ln
-                { ln ln } buffer cmd execute( r b -- b q? )
-            ] if
-        ] if
 
-        ! rangereal .
+            rangereal buffer cmd execute( r b -- b q? )
+        ] if
     ] [
-        .
-        ! drop
+        ! .
+        drop
         "? error parsing" print
         buffer t
     ] recover

@@ -36,6 +36,7 @@ ERROR: cmderr summary range args buffer ;
                     getinput :> from
                     line into from splice :> newlines
                     newlines buffer lines<<
+                    newlines length buffer totallines<<
                     line buffer linenum<<
                     f buffer saved?<<
                     buffer t
@@ -52,6 +53,7 @@ ERROR: cmderr summary range args buffer ;
                 getinput :> from
                 line into from splice :> newlines
                 newlines buffer lines<<
+                newlines length buffer totallines<<
                 line buffer linenum<<
                 f buffer saved?<<
                 buffer t
@@ -75,6 +77,7 @@ ERROR: cmderr summary range args buffer ;
                     getinput :> from
                     line into from splice :> newlines
                     newlines buffer lines<<
+                    newlines length buffer totallines<<
                     line buffer linenum<<
                     f buffer saved?<<
                     buffer t
@@ -91,6 +94,7 @@ ERROR: cmderr summary range args buffer ;
                 getinput :> from
                 line into from splice :> newlines
                 newlines buffer lines<<
+                newlines length buffer totallines<<
                 line buffer linenum<<
                 f buffer saved?<<
                 buffer t

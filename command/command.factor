@@ -116,15 +116,6 @@ ERROR: cmderr summary range args buffer ;
     ] if
 ;
 
-! ! save file
-! : w ( buffer -- buffer )
-!     dup filename>> swap
-!     dup lines>> rot
-!     utf8 set-file-lines
-!     t >>saved?
-!     t >>changed?
-! ;
-
 ! delete line
 : d ( buffer -- buffer )
     dup lines>>                          ! get lines
@@ -162,8 +153,21 @@ ERROR: cmderr summary range args buffer ;
     ] if
 ;
 
-! :: p ( argstr range buffer -- buffer continue? )
-! ;
+:: p ( argstr range buffer -- buffer continue? )
+    argstr empty? [
+        range first range last and not [
+            buffer linenum>> 1 - buffer lines>> nth print
+        ] [
+            range first 1 - range last buffer lines>> subseq [
+                print
+            ] each-index
+        ] if
+    ] [
+        "no args allowed" range argstr buffer cmderr
+    ] if
+
+    buffer t
+;
 
 :: n ( argstr range buffer -- buffer continue? )
     argstr empty? [
@@ -182,5 +186,5 @@ ERROR: cmderr summary range args buffer ;
     buffer t
 ;
 
-: nop ( range buffer -- buffer ) nip ;
+: nop ( argstr range buffer -- buffer continue? ) 2nip t ;
 

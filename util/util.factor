@@ -12,19 +12,10 @@ IN: fed.util
     rot append append
 ;
 
-! get input until single . on a line
+! thanks SO!
 : getinput ( -- input )
-    { } [
-        readln
-        [ "." = ] keep swap
-        [
-            drop
-            f
-        ] [
-            1array append
-            t
-        ] if
-    ] loop
+    [ readln dup "." = not ] [ ] produce
+    nip
 ;
 
 : oneranged ( range -- ok? )
@@ -43,6 +34,16 @@ IN: fed.util
 
 : inboundsd ( buffer elem -- ok? )
     [ totallines>> ] dip swap <=
+;
+
+! in bounds for i
+: inboundsdi ( buffer elem -- ok? )
+    [ totallines>> ] dip swap <=
+;
+
+! in bounds for a
+: inboundsda ( buffer elem -- ok? )
+
 ;
 
 ERROR: rangeerr summary from to ;

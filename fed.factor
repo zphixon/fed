@@ -39,6 +39,7 @@ IN: fed
 
     dup lines>> length 0 = [
         1 >>linenum
+        { "" } >>lines
     ] [
     ] if
 

@@ -155,34 +155,46 @@ ERROR: cmderr summary range args buffer ;
 
 :: p ( argstr range buffer -- buffer continue? )
     argstr empty? [
-        range first range last and not [
+        range first :> from
+        range second :> to
+        from [ ! { 2 ? }
+            to [ ! { 2 3 }
+                from 1 - to buffer lines>> subseq [
+                    print
+                ] each
+            ] [ ! { 2 f }
+                from 1 - buffer lines>> nth print
+            ] if
+        ] [ ! { f f }
             buffer linenum>> 1 - buffer lines>> nth print
-        ] [
-            range first 1 - range last buffer lines>> subseq [
-                print
-            ] each-index
         ] if
     ] [
         "no args allowed" range argstr buffer cmderr
     ] if
-
     buffer t
 ;
 
 :: n ( argstr range buffer -- buffer continue? )
     argstr empty? [
-        range first range last and not [
+        range first :> from
+        range second :> to
+        from [ ! { 2 ? }
+            to [ ! { 2 3 }
+                from 1 - to buffer lines>> subseq [
+                    from + number>string write "\t" write flush print
+                ] each-index
+            ] [ ! { 2 f }
+                ! from 1 - buffer lines>> nth print
+                from number>string write "\t" write flush
+                from 1 - buffer lines>> nth print
+            ] if
+        ] [ ! { f f }
             buffer linenum>> number>string write "\t" write flush
             buffer linenum>> 1 - buffer lines>> nth print
-        ] [
-            range first 1 - range last buffer lines>> subseq [
-                range first + number>string write "\t" write flush print
-            ] each-index
         ] if
     ] [
         "no args allowed" range argstr buffer cmderr
     ] if
-
     buffer t
 ;
 

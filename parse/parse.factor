@@ -89,6 +89,11 @@ EBNF: fedcommand
                 ast third :> argstr
                 ! rangereal .
                 argstr rangereal buffer cmd execute( a r b -- b q? )
+                :> c?
+                :> b2
+                b2 linenum>> 0 b2 totallines>> clamp b2 linenum<<
+                b2 c?
+                ! b2 lines>> [ print ] each
             ] [
                 "?" print
                 helpmsg? [ summary>> print ] [ drop ] if

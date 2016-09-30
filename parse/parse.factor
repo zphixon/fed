@@ -3,7 +3,7 @@
 
 USING: combinators fed.command io kernel accessors namespaces strings
     continuations prettyprint math math.parser sequences arrays
-    locals sequences sorting peg.ebnf peg math.order ;
+    locals sequences sorting peg.ebnf peg math.order fed.util ;
 IN: fed.parse
 
 : commandmatch ( commandstr -- command )
@@ -18,8 +18,6 @@ IN: fed.parse
         [ drop "? unknown command" print \ nop ]
     } case
 ;
-
-ERROR: rangeerr summary from to ;
 
 :: rangematch ( linenum buflen rangeraw -- range )
     rangeraw first :> from
@@ -78,7 +76,11 @@ EBNF: fedcommand
         { 1 1 } :> rangereal!
         ast number? [
             ! ast .
-            buffer ast >>linenum t
+            buffer ast inboundsd [
+                buffer ast >>linenum t
+            ] [
+                "out of bounds" ast "" buffer cmderr
+            ] if
         ] [
             ! ast .
             [
@@ -89,9 +91,10 @@ EBNF: fedcommand
                 ast third :> argstr
                 ! rangereal .
                 argstr rangereal buffer cmd execute( a r b -- b q? )
+                ! [ dup linenum>> number>string print ] dip
                 :> c?
                 :> b2
-                b2 linenum>> 0 b2 totallines>> clamp b2 linenum<<
+                b2 linenum>> 1 b2 totallines>> clamp b2 linenum<<
                 b2 c?
                 ! b2 lines>> [ print ] each
             ] [
@@ -102,10 +105,10 @@ EBNF: fedcommand
             ] recover
         ] if
     ] [
-        ! summary>> print
+        summary>> print
         ! drop
         "? error parsing" print
-        .
+        ! .
         buffer t
     ] recover
 ;

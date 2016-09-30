@@ -5,26 +5,6 @@ USING: accessors fed.util kernel sequences math math.parser io io.files
     io.encodings.utf8 locals prettyprint ;
 IN: fed.command
 
-ERROR: cmderr summary range args buffer ;
-
-: oneranged ( range -- ok? )
-    second not [
-        t
-    ] [
-        f
-    ] if
-;
-
-: noranged ( range -- ok? )
-    dup first
-    [ second ] dip
-    or not
-;
-
-: inboundsd ( buffer elem -- ok? )
-    [ totallines>> ] dip swap <=
-;
-
 ! append after curret line
 :: a ( argstr range buffer -- buffer continue? )
     range oneranged [
@@ -146,6 +126,7 @@ ERROR: cmderr summary range args buffer ;
     before after append :> newlines
     newlines buffer lines<<
     newlines length buffer totallines<<
+    from buffer linenum<<
     f buffer saved?<<
     buffer t
 ;

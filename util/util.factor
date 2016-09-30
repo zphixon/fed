@@ -1,7 +1,7 @@
 ! Copyright (C) 2016 Zack Hixon
 ! see LICENSE.txt for copyright notice
 
-USING: kernel io arrays sequences ;
+USING: kernel io arrays sequences accessors math ;
 IN: fed.util
 
 ! splice array into another
@@ -26,4 +26,25 @@ IN: fed.util
         ] if
     ] loop
 ;
+
+: oneranged ( range -- ok? )
+    second not [
+        t
+    ] [
+        f
+    ] if
+;
+
+: noranged ( range -- ok? )
+    dup first
+    [ second ] dip
+    or not
+;
+
+: inboundsd ( buffer elem -- ok? )
+    [ totallines>> ] dip swap <=
+;
+
+ERROR: rangeerr summary from to ;
+ERROR: cmderr summary range args buffer ;
 

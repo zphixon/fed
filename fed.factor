@@ -37,6 +37,11 @@ IN: fed
     ! print length: not really right but whatever it's familiar
     dup lines>> "\n" join length number>string print
 
+    dup lines>> length 0 = [
+        1 >>linenum
+    ] [
+    ] if
+
     fedloop ! enter main loop
 
     dup changed?>> [

@@ -25,6 +25,7 @@ ERROR: cmderr summary range args buffer ;
     [ totallines>> ] dip swap <=
 ;
 
+! append after curret line
 :: a ( argstr range buffer -- buffer continue? )
     range oneranged [
         range first [
@@ -63,6 +64,7 @@ ERROR: cmderr summary range args buffer ;
     ] if
 ;
 
+! insert at current line
 :: i ( argstr range buffer -- buffer continue? )
     range oneranged [
         range first [
@@ -101,6 +103,7 @@ ERROR: cmderr summary range args buffer ;
     ] if
 ;
 
+! save file
 :: w ( argstr range buffer -- buffer continue? )
     range noranged [
         argstr empty? [
@@ -116,6 +119,7 @@ ERROR: cmderr summary range args buffer ;
     ] if
 ;
 
+! delete lines
 :: d ( argstr range buffer -- buffer continue? )
     argstr empty? [ ] [
         "no args allowed" range argstr buffer cmderr
@@ -142,6 +146,7 @@ ERROR: cmderr summary range args buffer ;
     buffer t
 ;
 
+! quit editor
 :: q ( argstr range buffer -- buffer continue? )
     range noranged [
         argstr empty? [
@@ -165,19 +170,20 @@ ERROR: cmderr summary range args buffer ;
     ] if
 ;
 
+! print without line numbers
 :: p ( argstr range buffer -- buffer continue? )
     argstr empty? [
         range first :> from
         range second :> to
-        from [ ! { 2 ? }
-            to [ ! { 2 3 }
+        from [
+            to [
                 from 1 - to buffer lines>> subseq [
                     print
                 ] each
-            ] [ ! { 2 f }
+            ] [
                 from 1 - buffer lines>> nth print
             ] if
-        ] [ ! { f f }
+        ] [
             buffer linenum>> 1 - buffer lines>> nth print
         ] if
     ] [
@@ -186,21 +192,21 @@ ERROR: cmderr summary range args buffer ;
     buffer t
 ;
 
+! print with line numbers
 :: n ( argstr range buffer -- buffer continue? )
     argstr empty? [
         range first :> from
         range second :> to
-        from [ ! { 2 ? }
-            to [ ! { 2 3 }
+        from [                                                          ! { 2 ? }
+            to [                                                        ! { 2 3 }
                 from 1 - to buffer lines>> subseq [
                     from + number>string write "\t" write flush print
                 ] each-index
-            ] [ ! { 2 f }
-                ! from 1 - buffer lines>> nth print
+            ] [                                                         ! { 2 f }
                 from number>string write "\t" write flush
                 from 1 - buffer lines>> nth print
             ] if
-        ] [ ! { f f }
+        ] [                                                             ! { f f }
             buffer linenum>> number>string write "\t" write flush
             buffer linenum>> 1 - buffer lines>> nth print
         ] if

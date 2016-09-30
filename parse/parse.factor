@@ -3,7 +3,7 @@
 
 USING: combinators fed.command io kernel accessors namespaces strings
     continuations prettyprint math math.parser sequences arrays
-    locals sequences sorting peg.ebnf peg ;
+    locals sequences sorting peg.ebnf peg math.order ;
 IN: fed.parse
 
 : commandmatch ( commandstr -- command )
@@ -55,19 +55,6 @@ ERROR: rangeerr summary from to ;
     ] if
 ;
 
-! ! note to self: do not change
-! ! EBNF grammar for parsing fed commands
-! EBNF: fedcommand
-!     digit     = [0-9]                              => [[ digit> ]]
-!     number    = (digit)+                           => [[ 10 digits>integer ]]
-!     range     = number?:from ","*:comma number?:to => [[ from to comma ?first 3array ]]
-!     letter    = [a-zA-Z]                           => [[ 1array >string ]]
-!     ranged    = (range)?letter
-!     command   = (ranged|number) "\n"               => [[ first ]]
-!     rule      = command
-! ;EBNF
-! ! unfortunately doesn't support comments inside
-
 EBNF: fedcommand
     digit     = [0-9]                              => [[ digit> ]]
     number    = (digit)+                           => [[ 10 digits>integer ]]
@@ -82,7 +69,7 @@ EBNF: fedcommand
 :: parse ( buffer command -- buffer quit? )
     command string>number :> num?
 
-    command "debug" = [ buffer . ] [ ] if
+    ! command "debug" = [ buffer . ] [ ] if
 
     t :> helpmsg?
 

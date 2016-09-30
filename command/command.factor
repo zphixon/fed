@@ -116,18 +116,30 @@ ERROR: cmderr summary range args buffer ;
     ] if
 ;
 
-! delete line
-: d ( buffer -- buffer )
-    dup lines>>                          ! get lines
-    [ dup linenum>> 0 swap 1 - ] dip     ! set up first subsequence
-    dup [ subseq ] dip                   ! get lines before deleted line
-    [ dup linenum>> ] 2dip [ swap ] dip  ! set up second subsequence
-    dup [ length ] dip
-    subseq append                        ! get lines after deleted line
-    dup length                           ! get new totallines
-    [ >>lines ] dip                      ! set new lines
-    >>totallines                         ! set new totallines
-    f >>saved?
+:: d ( argstr range buffer -- buffer continue? )
+    argstr empty? [ ] [
+        "no args allowed" range argstr buffer cmderr
+    ] if
+    range first :> from!
+    range second :> to!
+    from [
+        to [
+            ! no change necessary
+        ] [
+            from to!
+        ] if
+    ] [
+        buffer linenum>> from!
+        buffer linenum>> to!
+    ] if
+    buffer lines>> :> linearray
+    0 from 1 - linearray subseq :> before
+    to buffer totallines>> linearray subseq :> after
+    before after append :> newlines
+    newlines buffer lines<<
+    newlines length buffer totallines<<
+    f buffer saved?<<
+    buffer t
 ;
 
 :: q ( argstr range buffer -- buffer continue? )

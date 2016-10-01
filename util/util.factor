@@ -37,14 +37,14 @@ IN: fed.util
 ;
 
 ! in bounds for i
-: inboundsdi ( buffer elem -- ok? )
-    [ totallines>> ] dip swap <=
-;
-
-! in bounds for a
-: inboundsda ( buffer elem -- ok? )
-
-;
+! : inboundsdi ( buffer elem -- ok? )
+!     [ totallines>> ] dip swap <=
+! ;
+! 
+! ! in bounds for a
+! : inboundsda ( buffer elem -- ok? )
+! 
+! ;
 
 ERROR: rangeerr summary from to ;
 ERROR: cmderr summary range args buffer ;

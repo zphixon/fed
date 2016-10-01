@@ -2,7 +2,7 @@
 ! see LICENSE.txt for copyright notice
 
 USING: accessors fed.util kernel sequences math math.parser io io.files
-    io.encodings.utf8 locals prettyprint ;
+    io.encodings.utf8 locals prettyprint arrays ;
 IN: fed.command
 
 ! append after curret line
@@ -199,6 +199,26 @@ IN: fed.command
         "no args allowed" range argstr buffer cmderr
     ] if
     buffer t
+;
+
+: c ( argstr range buffer -- buffer continue? )
+    [ dup ] 2dip
+    [ dup ] dip
+    [ first f 2array swap ] 2dip
+    d drop
+    i
+;
+
+: Q ( argstr range buffer -- buffer continue? )
+    [ noranged ] dip swap [
+        [ empty? ] dip swap [
+            f
+        ] [
+            "no args allowed" { } "" { } cmderr
+        ] if
+    ] [
+        "no range allowed" { } "" { } cmderr
+    ] if
 ;
 
 : nop ( argstr range buffer -- buffer continue? ) 2nip t ;

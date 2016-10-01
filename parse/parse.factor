@@ -15,6 +15,8 @@ IN: fed.parse
         { "d" [ \ d ] }
         { "a" [ \ a ] }
         { "i" [ \ i ] }
+        { "c" [ \ c ] }
+        { "Q" [ \ Q ] }
         [ drop "? unknown command" print \ nop ]
     } case
 ;

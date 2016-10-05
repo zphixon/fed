@@ -16,6 +16,7 @@ IN: fed.parse
         { "a" [ \ a ] }
         { "i" [ \ i ] }
         { "c" [ \ c ] }
+        { "P" [ \ P ] }
         { "Q" [ \ Q ] }
         [ drop "? unknown command" print \ nop ]
     } case
@@ -113,5 +114,6 @@ EBNF: fedcommand
         ! .
         buffer t
     ] recover
+    flush
 ;
 

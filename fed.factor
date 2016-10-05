@@ -9,8 +9,12 @@ IN: fed
 : fedloop ( buffer -- buffer )
     ! wait for commands
     [                                           ! loop begin
-        dup prompt>> write flush readln         ! prompt for command
-        "\n" append parse                ! make it easier to parse
+        ! dup prompt>> write flush readln         ! prompt for command
+        ! "\n" append parse                       ! make it easier to parse
+        dup prompt?>> [
+            dup prompt>> write flush
+        ] [ ] if
+        readln "\n" append parse
     ] loop                                      ! loop while still editing
 ;
 
@@ -44,6 +48,7 @@ IN: fed
     ] [
     ] if
 
+    flush
     fedloop ! enter main loop
 
     dup changed?>> [

@@ -87,22 +87,6 @@ IN: fed.command
     ] if
 ;
 
-! save file
-:: w ( argstr range buffer -- buffer continue? )
-    range noranged [
-        argstr empty? [
-            buffer lines>> buffer filename>> utf8 set-file-lines
-            t buffer saved?<<
-            t buffer changed?<<
-            buffer t
-        ] [
-            "no args allowed" range argstr buffer cmderr
-        ] if
-    ] [
-        "no range allowed" range argstr buffer cmderr
-    ] if
-;
-
 ! delete lines
 :: d ( argstr range buffer -- buffer continue? )
     argstr empty? [ ] [
@@ -155,6 +139,29 @@ IN: fed.command
     ] if
 ;
 
+! save file
+:: w ( argstr range buffer -- buffer continue? )
+    range noranged [
+        argstr empty? [
+            buffer lines>> buffer filename>> utf8 set-file-lines
+            t buffer saved?<<
+            t buffer changed?<<
+            buffer t
+        ] [
+            argstr "q" = [
+                buffer lines>> buffer filename>> utf8 set-file-lines
+                t buffer saved?<<
+                t buffer changed?<<
+                "" { f f } buffer q
+            ] [
+                "no args allowed" range argstr buffer cmderr
+            ] if
+        ] if
+    ] [
+        "no range allowed" range argstr buffer cmderr
+    ] if
+;
+
 ! print without line numbers
 :: p ( argstr range buffer -- buffer continue? )
     argstr empty? [
@@ -174,6 +181,7 @@ IN: fed.command
     ] [
         "no args allowed" range argstr buffer cmderr
     ] if
+    flush
     buffer t
 ;
 
@@ -198,6 +206,7 @@ IN: fed.command
     ] [
         "no args allowed" range argstr buffer cmderr
     ] if
+    flush
     buffer t
 ;
 
@@ -219,6 +228,12 @@ IN: fed.command
     ] [
         "no range allowed" { } "" { } cmderr
     ] if
+;
+
+: P ( argstr range buffer -- buffer continue? )
+    2nip
+    dup prompt?>> not >>prompt?
+    t
 ;
 
 : nop ( argstr range buffer -- buffer continue? ) 2nip t ;

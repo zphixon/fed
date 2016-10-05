@@ -18,7 +18,10 @@ IN: fed.parse
         { "c" [ \ c ] }
         { "P" [ \ P ] }
         { "Q" [ \ Q ] }
-        [ drop "? unknown command" print \ nop ]
+        { "H" [ \ H ] }
+        [
+            "unknown command" { } "" { } cmderr
+        ]
     } case
 ;
 
@@ -70,9 +73,7 @@ EBNF: fedcommand
 :: parse ( buffer command -- buffer quit? )
     command string>number :> num?
 
-    ! command "debug" = [ buffer . ] [ ] if
-
-    t :> helpmsg?
+    buffer help?>> :> helpmsg?
 
     [
         command fedcommand :> ast

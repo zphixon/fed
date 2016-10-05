@@ -236,5 +236,18 @@ IN: fed.command
     t
 ;
 
+: H ( argstr range buffer -- buffer continue? )
+    [ noranged ] dip swap [
+        [ empty? ] dip swap [
+            dup help?>> not >>help?
+            t
+        ] [
+            "no args allowed" { } "" { } cmderr
+        ] if
+    ] [
+        "no range allowed" { } "" { } cmderr
+    ] if
+;
+
 : nop ( argstr range buffer -- buffer continue? ) 2nip t ;
 

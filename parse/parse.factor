@@ -70,7 +70,7 @@ EBNF: fedcommand
     rule      = command
 ;EBNF
 
-:: parse ( buffer command -- buffer quit? )
+:: parse ( buffer command -- argstr rangereal buffer cmd )
     command string>number :> num?
 
     buffer help?>> :> helpmsg?
@@ -81,7 +81,9 @@ EBNF: fedcommand
         ast number? [
             ! ast .
             buffer ast inboundsd [
-                buffer ast >>linenum t
+                buffer ast >>linenum
+                drop
+                "" { } buffer \ nop
             ] [
                 "out of bounds" ast "" buffer cmderr
             ] if
@@ -96,16 +98,19 @@ EBNF: fedcommand
                 ! rangereal .
                 argstr rangereal buffer cmd execute( a r b -- b q? )
                 ! [ dup linenum>> number>string print ] dip
-                :> c?
-                :> b2
-                b2 linenum>> 1 b2 totallines>> clamp b2 linenum<<
-                b2 c?
+                ! :> c?
+                ! :> b2
+                ! b2 linenum>> 1 b2 totallines>> clamp b2 linenum<<
+                ! b2 c?
                 ! b2 lines>> [ print ] each
+                buffer linenum>> 1 buffer totallines>> clamp buffer linenum<<
+                argstr rangereal buffer cmd
             ] [
                 "?" print
                 helpmsg? [ summary>> print ] [ drop ] if
                 ! .
-                buffer t
+                ! buffer t
+                "" { } buffer \ nop
             ] recover
         ] if
     ] [
@@ -113,7 +118,8 @@ EBNF: fedcommand
         ! drop
         "? error parsing" print
         ! .
-        buffer t
+        ! buffer t
+        "" { } buffer \ nop
     ] recover
     flush
 ;

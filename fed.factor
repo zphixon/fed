@@ -3,7 +3,7 @@
 
 USING: accessors command-line fed.buffer io io.encodings.utf8
     io.files kernel math.parser namespaces sequences fed.parse
-    kernel ;
+    kernel fed.util ;
 IN: fed
 
 : fedloop ( buffer -- buffer )
@@ -15,6 +15,16 @@ IN: fed
             dup prompt>> write flush
         ] [ ] if
         readln "\n" append parse
+
+        execute( a r b -- b c? )
+
+        swap dup lines>> length 0 = [
+            1 >>linenum
+            1 >>totallines
+            { "" } >>lines
+        ] [
+        ] if swap
+
     ] loop                                      ! loop while still editing
 ;
 
